@@ -1,31 +1,44 @@
+
 <div class="container">
-  <div class="hidden-print text-center" style="height: 300px;">
-    <p class="lead">
-    <a ng-hide="loggingIn" style="cursor:pointer;" ng-click="personaLogin()">Sign in to continue</a>
-    <p ng-show="loggingIn">
-      <i class="fa fa-2x fa-spinner fa-spin fa-pulse" ></i>
-      {{loadingMsg}}
-    </p>
-    </p>
-    <p ng-show="userNotRegistered">
-    <strong style="color:b30000;">{{loggedInUser.email}}</strong>
-    is not a registered user.
-    </p>
-    <p ng-show="userNotRegistered">
-    If you have an account, ask an administrator to verify your email.
-    </p>
-    <p ng-show="userNotCurrent">
-    <strong style="color:b30000;">{{loggedInUser.email}}</strong>
-    is not a current employee.
-    </p>
-    <p ng-show="userNotCurrent">
-    If you are a current employee, ask an administrator to verify your email and employment status.
-    </p>
-    <!--
-      <button type="button" ng-click="login()" class="btn btn-default">
-      <img style="height:20px; with: 20px;" src="img/persona-logo-glyph.png"></img>
-      Sign in with Persona
-      </button>
-      -->
+  <div class="panel panel-default hidden-print" style="height: 200px;">
+    <div class="row panel-body">
+      <div class="col-sm-8 col-sm-offset-2">
+        <div class="text-center">
+          <p class="lead"> 
+            Sequoia Grove Employee Scheduling
+          </p>
+          <p class="lead">
+            <p ng-show="loggingIn">
+              <i class="fa fa-2x fa-spinner fa-spin fa-pulse" ></i>
+              {{loadingMsg}}
+            </p>
+          </p>
+        </div>
+      </div>
+
+      <!-- Error Messages -->
+      <div class="row panel-body text-center">
+        <div class="col-sm-12">
+          <div ng-show="errorMessage.length > 0"> 
+            <p> Sign in failed for <strong>{{attemptedLogin.email}}</strong> </p>
+            <p>{{errorMessage}}</p>
+            <a href="#/login" onclick="differentUser();">Not {{attemptedLogin.name}}?</a>
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <a class="lead pull-right" style="cursor:pointer;"
+    ng-disabled="loggingIn">
+    Need an account?
+  </a>
+  <div class="form-group">
+    <label for="dev-mode">Dev Mode</label>
+    <input id="dev-mode" type="checkbox"
+    ng-disabled="loggingIn"
+    ng-click="updateDevMode()"
+    ng-model="devMode"/>
   </div>
 </div>

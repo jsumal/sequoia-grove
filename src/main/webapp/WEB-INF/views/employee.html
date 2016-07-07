@@ -2,7 +2,7 @@
   <div class="row">
 
     <div class="col-sm-3">
-      <div class="panel panel-default">
+      <div class="panel panel-default employee-list-panel">
         <div class="panel-heading">
           <!-- Filter by User, Location, or Position -->
           <div class="dropdown pull-right" dropdown is-open=true>
@@ -30,29 +30,12 @@
     </div>
 
     <div class="col-sm-9">
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          <button class = "btn btn-info pull-right"
-              ng-show="selectedEmployee.id === 0"
-              ng-click="updateEmployee()">
-            <span class="glyphicon glyphicon glyphicon-plus" aria-hidden="true"></span>
-            Add
-          </button>
-          <div ng-hide = "selectedEmployee.id === 0">
-            <button class = "btn btn-primary pull-right"
-                ng-click="updateEmployee()">
-              <span class="glyphicon glyphicon-send" aria-hidden="true"></span>
-              Save Info
-            </button>
-          </div>
-          <p class="lead emp-header">Employee Info</p>
-        </div>
-        <div class="panel-body">
-          <ng-include src="'views/templates/employee-info.html'"></ng-include>
-        </div>
-      </div>
+      <ng-include src="'views/templates/employee-info.html'"></ng-include>
+    </div>
 
-      <div class="panel panel-default">
+    <div class="col-sm-9">
+      <!-- Availability -->
+      <div class="panel panel-default" ng-show="selectedEmployee.id != 0">
         <div class="panel-heading">
           <p class="lead emp-header">Availability</p>
         </div>
@@ -61,7 +44,8 @@
         </div>
       </div>
 
-      <div class="panel panel-default">
+      <!-- Positions -->
+      <div class="panel panel-default" ng-show="selectedEmployee.id != 0">
         <div class="panel-heading">
           <p class="lead emp-header">Positions</p>
         </div>
@@ -70,19 +54,30 @@
         </div>
       </div>
 
-      <div class="panel panel-default">
+      <!-- Permissions
+      <div class="panel panel-default" ng-show="selectedEmployee.id != 0">
+        <div class="panel-heading">
+          <p class="lead emp-header">Permissions</p>
+        </div>
+        <div class="panel-body">
+          <ng-include src="'views/templates/employee-permissions.html'"></ng-include>
+        </div>
+      </div> -->
+
+      <!-- Employment History  -->
+      <div class="panel panel-default" ng-show="selectedEmployee.id != 0">
         <div class="panel-heading">
           <!-- Unemploy this current employee -->
           <button type = "button"
             ng-show="selectedEmployee.isCurrent === true"
-            ng-click="deactivateEmployee()"
-            class = "btn btn-info pull-right">Unemploy {{selectedEmployee.firstName}}
+            ng-click="deactivateEmployee($event)"
+            class = "btn btn-info pull-right">Unemploy {{selectedEmployee.firstname}}
           </button>
           <!-- Employ this past employee -->
           <button type = "button"
             ng-show="selectedEmployee.isCurrent === false"
             ng-click="activateEmployee()"
-            class = "btn btn-primary pull-right">Employ {{selectedEmployee.firstName}}
+            class = "btn btn-primary pull-right">Employ {{selectedEmployee.firstname}}
           </button>
           <p class="lead emp-header">Employment History</p>
         </div>

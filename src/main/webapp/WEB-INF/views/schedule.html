@@ -1,8 +1,8 @@
 <div class="container-fluid hidden-print">
 
+
   <!-- Schedule Edit Options -->
   <ng-include src="'views/templates/schedule-edit-options.html'"></ng-include>
-
 
   <!-- Schedule Edit Panel -->
   <div class="panel panel-default schedule-edit-panel pull-left">
@@ -21,13 +21,6 @@
     </div>
   </div>
 
-  <!-- Shift Edit Panel -->
-  <div class="panel panel-default schedule-edit-shift-panel pull-left hidden-print">
-    <div class="panel-body">
-      <ng-include src="'views/templates/schedule-shift-edit.html'"></ng-include>
-    </div>
-  </div>
-
   <!-- Employee List Panel -->
   <div class="form-group employee-schedule-edit-search">
     <div class="input-group">
@@ -40,23 +33,16 @@
 
   <div class="panel panel-default employee-schedule-edit-panel pull-right clear-both">
     <div class="panel-body">
-      <div ng-repeat="e in employees | filter:empEditSearch" class="row" ng-show="employeeHasPosition(e.id, -1)">
+      <div ng-if="e.isCurrent" ng-repeat="e in employees | filter:empEditSearch" class="row" ng-show="employeeHasPosition(e.id)">
         <span
-        ng-class="inputStatus(e.id, 'monday', t.sid)"
-        ng-click="selectEid(e.id)">
-          <div style="width:70px; float:left;"> {{e.firstName}} </div>
-          <div style="float:left;">{{dayCount[e.id]}}d {{hourCount[e.id]}}h </div>
+          ng-class="employeeListHighlight(e.id)"
+          ng-click="selectFromList(e.id)">
+          <div style="width:70px; float:left;"> {{e.firstname}} </div>
+          <div ng-show="dayCount[e.id] > 0" style="float:left;">{{dayCount[e.id]}}d {{hourCount[e.id]}}h </div>
         </span>
       </div>
     </div>
   </div>
 
-  <!-- Edit Delivery Days -->
-  <!--
-  <div class="panel panel-default">
-    <div class="panel-body">
-      <ng-include src="'views/templates/schedule-delivery-edit.html'"></ng-include>
-    </div>
-  </div>
-    -->
+
 </div>

@@ -7,140 +7,161 @@
  * # LoginCtrl
  * Controller of the sequoiaGroveApp
  */
-angular.module('sequoiaGroveApp')
-  .controller('LoginCtrl', function (
-        $http,
-        $location,
-        $log,
-        $rootScope,
-        $scope,
-        $q,
-        Persona){
-    $rootScope.loggedIn = false;
-    $rootScope.userNotRegistered = false;
-    $rootScope.userNotCurrent = false;
-    $rootScope.loggedInUser = {};
+angular.module('sequoiaGroveApp').controller('LoginCtrl', function(
+  $window, $http, $location, $log, $rootScope, $scope, $timeout, scheduleFactory,
+  userFactory, loginFactory, requestFactory, localStorageService, $q ){
+  $scope.attemptedLogin = {};
 
-    // User tried to go back to the login page when they were alredy logged in.
-    // redirect back to home
-    if ($rootScope.loggedIn) {
-      $location.path( "/home" );
+  // User tried to go back to the login page when they were alredy logged in.
+  // redirect back to home
+  if (loginFactory.isLoggedIn()) {
+    $location.path( "/home" );
+  }
+  $rootScope.loggingIn = false;
+  $scope.initiate = false;
+
+  // wait until gapi is defined, then add a signin/out listener
+  $timeout(function() {
+    gapi.auth2.getAuthInstance().isSignedIn.listen(listenSignin)
+  }, 900);
+
+  // user signs in
+  function onSignIn(googleUser) {
+    $rootScope.loggingIn = true;
+    var signedIn = gapi.auth2.getAuthInstance().isSignedIn.get();
+    if (!signedIn && !$scope.initiate) {
       $rootScope.loggingIn = false;
+      $rootScope.loggedIn = false;
+      return;
     }
-
-    // User initialized login, send it to Mozilla Persona
-    $scope.personaLogin = function () {
-      $rootScope.userNotRegistered = false;
-      $rootScope.userNotCurrent = false;
-      Persona.request();
-    }
-
-    // When user has logged in, this will load required data based
-    // on user access level, and then redirect to home.
-    $scope.initializeData = function() {
-
-      // first, build schedule header
-      $q.all([$scope.setScheduleHeader()]
-      ).then(function(data) {
-
-        // next, build schedule template
-        $q.all( [$scope.getScheduleTemplate($scope.date.mon.val)]
-        ).then(function(results) {
-
-          // next, if the user is a manager, gather additional needed data
-          if ($rootScope.loggedInUser.isManager) {
-
-            $q.all([ $scope.getEmployees(), $scope.getPositions()]
-            ).then(function(results) {
-              $scope.countDays();
-              $scope.countHours();
-            })
-          }
-
-          // Finally, redirect to home
-          }).then(function(results) {
+    $scope.initiate = true;
+    loginFactory.signIn(googleUser, gapi).
+      then(function(success) {
+        // initialize data
+        $scope.initializeData(success).then(
+          function(s) {
             $scope.loading = false;
             $log.debug('loading complete');
-
-            // redirect to last path, or home if none
-            if ($rootScope.lastPath === '/login' ||
-                $rootScope.lastPath === undefined  ||
-                $rootScope.lastPath === null) {
-              $rootScope.lastPath = '/home';
-            }
-            $location.path( $rootScope.lastPath );
-          });
-        });
-    }
-
-    // When a user has logged out, this will clear variables to reset
-    // the application to a clean state
-    $scope.destructData = function() {
-      Persona.logout();
-
-      //FIXME for now, just cheat it and reload the page,
-      // eventually, reset root and main scope variables.
-      location.reload();
-    }
-
-    
-/************** Event Watchers **************/
-
-    // When Persona is used to login or logout, it catches the login/logout as needed
-    Persona.watch({
-      // User attempted to log in
-      onlogin: function(assertion) {
-        $rootScope.loggingIn = true;
-        var data = { assertion: assertion };
-        $http.post("/sequoiagrove/auth/login/", data).
-          success(function(data, status){
-
-            // The user with the supplied email was verified by Mozilla Persona,
-            // but was not found in the database.
-            // Issue warning message, don't redirect to home
-            if (data.userNotRegistered) {
-              $rootScope.userNotRegistered = true;
-              $log.debug(data.email, 'not registered with this application');
-              $rootScope.loggedInUser = {'email':data.email, 'isManager':false};
+            //$location.path('/login');
+            if (localStorageService.get('lastPath') === null) {
+              localStorageService.set('lastPath', '/home');
+            };
+            $timeout(function() {
               $rootScope.loggingIn = false;
-              return;
-            }
-            // The user has been unemployed from the company
-            if (data.userNotCurrent) {
-              $rootScope.userNotCurrent = true;
-              $log.debug(data.email, 'is not a current employee');
-              $rootScope.loggedInUser = {'email':data.email, 'isManager':false};
-              $rootScope.loggingIn = false;
-              return;
-            }
-            // Otherwise, we found the user - save that user's data
-            $rootScope.userNotRegistered = false;
-            $rootScope.loggedInUser = data.user;
-            $rootScope.loggedIn = true;
-            $log.debug('logged in as', data.user.fullname, "(",data.user.email, ")");
-
-            // then call function to load all required data and redirect to home
-            $scope.initializeData();
+              $rootScope.loggedIn = true;
+              $location.path(localStorageService.get('lastPath'));
+            });
           });
-      },
-      onlogout: function() {
-        $rootScope.loggedIn = false;
+      },function(failure) {
+        $scope.initiate = false;
+        gapi.auth2.getAuthInstance().signOut();
+        if (failure) {
+          //gapi.auth2.getAuthInstance().disconnect();
+          //$rootScope.failedLogin = true;
+          var profile = googleUser.getBasicProfile();
+          $scope.attemptedLogin = {
+            'google_id':profile.getId(),
+            'email': profile.getEmail(),
+            'name': profile.getName(),
+            'firstname': profile.getGivenName(),
+            'lastname': profile.getFamilyName(),
+            'profile_photo':profile.getImageUrl()
+          };
+        }
+        $scope.errorMessage = failure.message;
         $rootScope.loggingIn = false;
-        $rootScope.loggedInUser = {};
-        $rootScope.$apply();
-        $location.path( "/login" );
-        // Stuff
+        $rootScope.loggedIn = false;
+      });
+  }
+
+  // catch user initiated signin or signout
+  function listenSignin(signingIn) {
+    $rootScope.loggingIn = true;
+    if (signingIn) {
+      if (!$scope.initiate) {
+        $scope.initiate = true;
+        var googleUser = gapi.auth2.getAuthInstance().currentUser.get();
+        onSignIn(googleUser);
       }
-    });
+    }
+    else {
+      $rootScope.loggedIn = false;
+      $rootScope.loggingIn = false;
+      //var googleUser = gapi.auth2.getAuthInstance().currentUser.get();
+    }
+  };
 
+  // user signs out themselves,
+  // reset the application to a clean state
+  function signOut() {
+    loginFactory.signOut(gapi).
+      then(function(success) {
+        // reset login error flags
+        $rootScope.loggingIn = false;
+        $rootScope.loggedIn = false;
+        $rootScope.errorMessage = '';
+        $rootScope.lastPath = "";
+        $location.path('/login');
+      }, function(failure) {
+      });
+  }
 
-    $rootScope.$on('login', function() {
-      $scope.personaLogin();
-    });
+  // user signs out someone else
+  function switchUser() {
+    loginFactory.switchUser(gapi).
+      then(function(success) {
+        $rootScope.lastPath = "";
+        $scope.initiate = false;
+        $scope.errorMessage = "";
+        $scope.attemptedLogin = {};
+        window.open('https://accounts.google.com/logout', '_blank');
+        $window.location.reload();
+        $scope.$apply();
+      });
+  }
 
-    $rootScope.$on('logout', function() {
-      $scope.destructData();
-    });
+  // when a failed login occurs, login as a different user
+  function differentUser() {
+    $rootScope.lastPath = "";
+    $scope.initiate = false;
+    $scope.errorMessage = "";
+    $scope.attemptedLogin = {};
+    window.open('https://accounts.google.com/logout', '_blank');
+    $scope.$apply();
+  };
 
-
-  });
+  window.onSignIn = onSignIn;
+  window.listenSignin = listenSignin;
+  window.signOut = signOut;
+  window.switchUser = switchUser;
+  window.differentUser = differentUser;
+  // When user has logged in, this will load required data based
+  // on user access level, and then redirect to home.
+  $scope.initializeData = function(isManager) {
+    // pull data from localstorage, if it's availabile
+    if($rootScope.devMode) {
+      if (localStorageService.get('template')){
+        $scope.template = JSON.parse(localStorageService.get('template'));
+      }
+      if(localStorageService.get('employees')) {
+        $rootScope.employees = JSON.parse(localStorageService.get('employees'));
+      }
+    }
+    // TODO refine better scope than is or is not manager
+    if (isManager) {
+      scheduleFactory.setManagePrivelage(); // needs permission manage-schedule
+      userFactory.setManagePrivelage(); //needs permission manage-employees
+      requestFactory.setManagePrivelage(); //needs permission manage-employees
+    }
+    return scheduleFactory.init()
+   .then(function(success) { // initialize schedule factory
+      return userFactory.init();
+    }).then(function(success) {
+      return $scope.getPositions()
+    }).then(function(success) {
+      return $scope.getDeliveries(); // get deliveries
+    }).then(function(success) {
+      return requestFactory.init(loginFactory.getUser().id); // get deliveries
+    })
+  }
+});

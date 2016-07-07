@@ -48,86 +48,92 @@
 
 <!-- shifts -->
   <tr ng-repeat="t in template"
-    ng-show="filterByType(t.location, t.position, loggedInUser.id, t.mon, t.tue, t.wed, t.thu, t.fri, t.sat, t.sun)">
+    ng-show="filterByType(t.location, t.position, t)">
 
     <!-- shift title -->
-    <td class="print-row">
+    <td class="print-row print-border">
         {{::t.tname}}
     </td>
 
-    <td class="print-row">
-      <span ng-show="shiftDuration(t.weekdayStart, t.weekdayEnd) >= 7"
-        class="glyphicon glyphicon-star">
-      </span>
-      <span ng-show="shiftDuration(t.weekdayStart, t.weekdayEnd) < 7 &&
-        shiftDuration(t.weekdayStart, t.weekdayEnd) >= 4"
-        class="glyphicon glyphicon-star-empty">
-      </span>
-      <span ng-show="shiftDuration(t.weekdayStart, t.weekdayEnd) < 4"
-        class="glyphicon glyphicon-minus">
-      </span>
-      {{::shiftDuration(t.weekdayStart, t.weekdayEnd)}} hrs
+    <td class="print-row print-border">
+      <div ng-hide="t.isSpacer">
+        <span ng-show="t.weekdayDuration >= 7"
+          class="glyphicon glyphicon-star">
+        </span>
+        <span ng-show="t.weekdayDuration < 7 && t.weekdayDuration >= 4"
+          class="glyphicon glyphicon-star-empty">
+        </span>
+        <span ng-show="t.weekdayDuration < 4"
+          class="glyphicon glyphicon-minus">
+        </span>
+        {{:: t.weekdayDuration}} hrs
+      </div>
     </td>
 
     <!-- weekday times -->
     <!--<div ng-show="t.wd_st != 0">-->
-    <td class="print-row ">
-      {{formatTime(t.weekdayStart, false)}} - {{formatTime(t.weekdayEnd, false)}}
+    <td class="print-row  print-border">
+      <div ng-hide="t.isSpacer">
+        {{formatTime(t.weekdayStart, false)}} - {{formatTime(t.weekdayEnd, false)}}
+      </div>
     </td>
     <!--</div>-->
 
     <!-- Monday -->
-    <td ng-class="{true:'highlighted print-row ', false:'print-row '}[(t.mon.eid==loggedInUser.id) && highlight]">
+    <td ng-class="{true:'highlighted print-row  print-border', false:'print-row  print-border'}[(t.mon.eid==loggedInUser.id) && highlight]">
       {{t.mon.name}}
     </td>
 
     <!-- Tuesday -->
-    <td ng-class="{true:'highlighted print-row ', false:'print-row '}[(t.tue.eid==loggedInUser.id) && highlight]">
+    <td ng-class="{true:'highlighted print-row  print-border', false:'print-row  print-border'}[(t.tue.eid==loggedInUser.id) && highlight]">
       {{t.tue.name}}
     </td>
 
     <!-- Wednesday -->
-    <td ng-class="{true:'highlighted print-row ', false:'print-row '}[(t.wed.eid==loggedInUser.id) && highlight]">
+    <td ng-class="{true:'highlighted print-row  print-border', false:'print-row  print-border'}[(t.wed.eid==loggedInUser.id) && highlight]">
       {{t.wed.name}}
     </td>
 
     <!-- Thursday -->
-    <td ng-class="{true:'highlighted print-row ', false:'print-row '}[(t.thu.eid==loggedInUser.id) && highlight]">
+    <td ng-class="{true:'highlighted print-row  print-border', false:'print-row  print-border'}[(t.thu.eid==loggedInUser.id) && highlight]">
         {{t.thu.name}}
     </td>
 
     <!-- Friday -->
-    <td ng-class="{true:'highlighted print-row ', false:'print-row '}[(t.fri.eid==loggedInUser.id) && highlight]">
+    <td ng-class="{true:'highlighted print-row  print-border', false:'print-row  print-border'}[(t.fri.eid==loggedInUser.id) && highlight]">
       {{t.fri.name}}
     </td>
 
-    <td class="print-row">
-      <span ng-show="shiftDuration(t.weekendStart, t.weekendEnd) >= 7"
-        class="glyphicon glyphicon-star">
-      </span>
-      <span ng-show="shiftDuration(t.weekendStart, t.weekendEnd) < 7 &&
-        shiftDuration(t.weekendStart, t.weekendEnd) >= 4"
-        class="glyphicon glyphicon-star-empty">
-      </span>
-      <span ng-show="shiftDuration(t.weekendStart, t.weekendEnd) < 4"
-        class="glyphicon glyphicon-minus">
-      </span>
-      {{::shiftDuration(t.weekendStart, t.weekendEnd)}} hrs
+    <td ng-hide="t.isSpacer" class="print-row print-border">
+      <div ng-hide="t.isSpacer">
+        <span ng-show="t.weekendDuration >= 7"
+          class="glyphicon glyphicon-star">
+        </span>
+        <span ng-show="t.weekendDuration< 7 && t.weekendDuration>= 4"
+          class="glyphicon glyphicon-star-empty">
+        </span>
+        <span ng-show="t.weekendDuration < 4"
+          class="glyphicon glyphicon-minus">
+        </span>
+        {{t.weekendDuration}} hrs
+      </div>
     </td>
     <!-- weekend times -->
       <!--<div ng-show="t.we_st != 0">-->
-    <td class="print-row ">
-      {{formatTime(t.weekendStart, false)}} - {{formatTime(t.weekendEnd, false)}}
+    <td class="print-row  print-border">
+      <div ng-hide="t.isSpacer">
+        {{formatTime(t.weekendStart, false)}} - {{formatTime(t.weekendEnd, false)}}
+      </div>
     </td>
       <!--</div>-->
 
     <!-- Saturday -->
-    <td ng-class="{true:'highlighted print-row ', false:'print-row '}[(t.sat.eid==loggedInUser.id) && highlight]">
+    <td ng-class="{true:'highlighted print-row  print-border', false:'print-row  print-border'}[(t.sat.eid==loggedInUser.id) && highlight]">
       {{t.sat.name}}
     </td>
 
     <!-- Sunday -->
-    <td ng-class="{true:'highlighted print-row ', false:'print-row '}[(t.sun.eid==loggedInUser.id) && highlight]">
+    <td ng-class="{true:'highlighted print-row  print-border', false:'print-row  print-border'}[(t.sun.eid==loggedInUser.id) && highlight]">
       {{t.sun.name}}
     </td>
 

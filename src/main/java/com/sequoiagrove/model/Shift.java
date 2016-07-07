@@ -6,31 +6,32 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class Shift {
     int sid;
     int pid;
-    String tname; 
-    int wd_st_h;
-    int wd_st_m;
-    int wd_ed_h;
-    int wd_ed_m;
-    int we_st_h;
-    int we_st_m;
-    int we_ed_h;
-    int we_ed_m;
+    String tname;
+    Duration active;
+    Duration weekday;
+    Duration weekend;
 
-    public Shift(){}
+    public Shift(){
+        this.active = new Duration();
+        this.weekday = new Duration();
+        this.weekend = new Duration(); 
+    }
     public Shift(int sid, int pid, String tname,
-      int wd_st_h, int wd_st_m, int wd_ed_h, int wd_ed_m,
-      int we_st_h, int we_st_m, int we_ed_h, int we_ed_m) {
+      String startDate, String endDate,
+      String weekdayStart, String weekdayEnd, 
+      String weekendStart, String weekendEnd) {
         this.sid = sid;
         this.pid = pid;
         this.tname = tname;
-        this.wd_st_h = wd_st_h;
-        this.wd_st_m = wd_st_m;
-        this.wd_ed_h = wd_ed_h;
-        this.wd_ed_m = wd_ed_m;
-        this.we_st_h = we_st_h;
-        this.we_st_m = we_st_m;
-        this.we_ed_h = we_ed_h;
-        this.we_ed_m = we_ed_m;
+        this.active = new Duration();
+        this.weekday = new Duration();
+        this.weekend = new Duration();
+        this.active.setStartDate(startDate);
+        this.active.setEndDate(endDate);
+        this.weekday.setStartNum(weekdayStart);
+        this.weekday.setEndNum(weekdayEnd);
+        this.weekend.setStartNum(weekendStart);
+        this.weekend.setEndNum(weekendEnd);
     }
 
     public int getSid() {
@@ -54,59 +55,64 @@ public class Shift {
         this.tname = tname;
     }
 
-    public int getWd_st_h() {
-        return wd_st_h;
+    public int getWeekdayStart() {
+        return weekday.getStartNum();
     }
-    public void setWd_st_h(int wd_st_h) {
-        this.wd_st_h = wd_st_h;
+    public void setWeekdayStart(String weekdayStart) {
+        this.weekday.setStartNum(weekdayStart);
     }
-
-    public int getWd_st_m() {
-        return wd_st_m;
-    }
-    public void setWd_st_m(int wd_st_m) {
-        this.wd_st_m = wd_st_m;
+    public void setWeekdayStart(int weekdayStart) {
+        this.weekday.setStartNum(weekdayStart);
     }
 
-    public int getWd_ed_h() {
-        return wd_ed_h;
+    public int getWeekdayEnd() {
+        return weekday.getEndNum();
     }
-    public void setWd_ed_h(int wd_ed_h) {
-        this.wd_ed_h = wd_ed_h;
+    public void setWeekdayEnd(String weekdayEnd) {
+        this.weekday.setEndNum(weekdayEnd);
     }
-
-    public int getWd_ed_m() {
-        return wd_ed_m;
-    }
-    public void setWd_ed_m(int wd_ed_m) {
-        this.wd_ed_m = wd_ed_m;
+    public void setWeekdayEnd(int weekdayEnd) {
+        this.weekday.setEndNum(weekdayEnd);
     }
 
-    public int getWe_st_h() {
-        return we_st_h;
+    public int getWeekendStart() {
+        return weekend.getStartNum();
     }
-    public void setWe_st_h(int we_st_h) {
-        this.we_st_h = we_st_h;
+    public void setWeekendStart(String weekendStart) {
+        this.weekend.setStartNum(weekendStart);
     }
-
-    public int getWe_st_m() {
-        return we_st_m;
-    }
-    public void setWe_st_m(int we_st_m) {
-        this.we_st_m = we_st_m;
+    public void setWeekendStart(int weekendStart) {
+        this.weekend.setStartNum(weekendStart);
     }
 
-    public int getWe_ed_h() {
-        return we_ed_h;
+    public int getWeekendEnd() {
+        return weekend.getEndNum();
     }
-    public void setWe_ed_h(int we_ed_h) {
-        this.we_ed_h = we_ed_h;
+    public void setWeekendEnd(String weekendEnd) {
+        this.weekend.setEndNum(weekendEnd);
+    }
+    public void setWeekendEnd(int weekendEnd) {
+        this.weekend.setEndNum(weekendEnd);
     }
 
-    public int getWe_ed_m() {
-        return we_ed_m;
+    public Duration getActive() {
+        return this.active;
     }
-    public void setWe_ed_m(int we_ed_m) {
-        this.we_ed_m = we_ed_m;
+    public void setActive(Duration active) {
+        this.active = active;
+    }
+
+    public DateCustom getStartDate() {
+        return this.active.getStartDate();
+    }
+    public void setStartDate(String startDate) {
+        this.active.setStartDate(startDate);
+    }
+
+    public DateCustom getEndDate() {
+        return this.active.getEndDate();
+    }
+    public void setEndDate(String endDate) {
+        this.active.setEndDate(endDate);
     }
 }

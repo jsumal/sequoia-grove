@@ -1,6 +1,6 @@
 /dist
 /target
-/src/main/webapp/resources/bower_components
+/src/main/webapp/static/bower_components
 */bower_components
 */node_modules
 node_modules/*
@@ -8,13 +8,20 @@ node_modules/*
 *.properties
 *.sh*
 test.sql
+npm-debug.log
+ojdbc6.jar
+*.jar
 
 *.sass-cache
 *.tmp
 
 *.DS_Store
 *.swp
+*.jar
 *.swo
 
 *~
 *.log
+
+mvc-dispatcher-servlet.xml
+

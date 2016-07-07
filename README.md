@@ -22,10 +22,6 @@ Directory Structure
 --
 ![directory structure](documentation/views/screenshots/directory-structure.png)
 
-Contribution Guidelines
---
-pending
-
 Setting up Development Environment
 --
 #### Tools you need to install
